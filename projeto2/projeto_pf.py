@@ -19,7 +19,7 @@ robot = Particle(largura/2, altura/2, math.pi/4, 1.0)
 # Nuvem de particulas
 particulas = []
 
-num_particulas = 10
+num_particulas = 100
 
 
 # Os angulos em que o robo simulado vai ter sensores
@@ -70,11 +70,8 @@ def move_particulas(particulas, movimento):
         Recebe um movimento na forma [deslocamento, theta]  e o aplica a todas as partículas
         Assumindo um desvio padrão para cada um dos valores
         Esta função não precisa devolver nada, e sim alterar as partículas recebidas.
-
         Sugestão: aplicar move_relative(movimento) a cada partícula
-
         Você não precisa mover o robô. O código fornecido pelos professores fará isso
-
     """
         
     for particula in particulas:
@@ -90,21 +87,19 @@ def leituras_laser_evidencias(robot, particulas):
         P(H|D) para todas as particulas
         Lembre-se de que a formula $P(z_t | x_t) = \alpha \prod_{j}^M{e^{\frac{-(z_j - \hat{z_j})}{2\sigma^2}}}$
         responde somente P(Hi|D), em que H é a hi
-
         Esta função não precisa retornar nada, mas as partículas precisa ter o seu w recalculado.
-
         Você vai precisar calcular para o robo
-
     """ 
     leitura_robo = inspercles.nb_lidar(robot, angles)
     
     for particula in particulas:
         leitura_particula = inspercles.nb_lidar(particula,angles)
-        prod = 1
+        prod = 0
         for angulo in leitura_particula.keys():
             leit_robo = leitura_robo[angulo]
             leit_part = leitura_particula[angulo]
-            prod *= np.exp(-(leit_part - leit_robo)/2*(1.5**2))
+            #prod += np.exp(-(leit_part - leit_robo)/2*(4**2))
+            prod += norm.pdf(leit_part, loc = leit_robo, scale = 4)
         particula.w = prod
     
     #Normaliza a nuvem de particulas 
@@ -120,11 +115,8 @@ def reamostrar(particulas, n_particulas = num_particulas):
     """
         Reamostra as partículas devolvendo novas particulas sorteadas
         de acordo com a probabilidade e deslocadas de acordo com uma variação normal
-
         O notebook como_sortear tem dicas que podem ser úteis
-
         Depois de reamostradas todas as partículas precisam novamente ser deixadas com probabilidade igual
-
         Use 1/n ou 1, não importa desde que seja a mesma
     """
     particulas_pesos = []
